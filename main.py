@@ -28,39 +28,52 @@ def get_routes():
 def get_data(timeobject, route):
     t = int(timeobject.time())
 
-    url = fr"https://retro.umoiq.com/service/publicXMLFeed?command=vehicleLocations&a=ttc&r={route}&t={t}"
+    if route[-1] == ',':
+        route = route[0:len(route)-1]
 
-    response = requests.get(url)
-    data = xmltodict.parse(response.content)
+    #route = 102,7,129
 
-    d = data["body"]["vehicle"]
+    routeList = route.split(",")
     final = []
-    for vehicle in d:
-        a = {
-            "heading": vehicle["@heading"],
-            "id": vehicle["@id"],
-            "lat": vehicle["@lat"],
-            "lon": vehicle["@lon"],
-            "predictable": vehicle["@predictable"],
-            "routeTag": vehicle["@routeTag"],
-            "secsSinceReport": vehicle["@secsSinceReport"],
-            "speed": vehicle["@speedKmHr"]
-        }
+    print(routeList)
+    for r in routeList:
 
-        if "@dirTag" in vehicle:
-            a["dirTag"] = vehicle["@dirTag"]
-            x = vehicle["@dirTag"].split("_")
-            a["route"] = x[2]
-            if x[1] == "0":
-                a["direction"] = "S"
+
+        url = fr"https://retro.umoiq.com/service/publicXMLFeed?command=vehicleLocations&a=ttc&r={r}&t={t}"
+
+        response = requests.get(url)
+        data = xmltodict.parse(response.content)
+
+        d = data["body"]["vehicle"]
+
+        for vehicle in d:
+            a = {
+                "heading": vehicle["@heading"],
+                "id": vehicle["@id"],
+                "lat": vehicle["@lat"],
+                "lon": vehicle["@lon"],
+                "predictable": vehicle["@predictable"],
+                "routeTag": vehicle["@routeTag"],
+                "secsSinceReport": vehicle["@secsSinceReport"],
+                "speed": vehicle["@speedKmHr"]
+            }
+
+            if "@dirTag" in vehicle:
+                a["dirTag"] = vehicle["@dirTag"]
+                x = vehicle["@dirTag"].split("_")
+                a["route"] = x[2]
+                if x[1] == "0":
+                    a["direction"] = "S"
+                else:
+                    a["direction"] = "N"
+
             else:
-                a["direction"] = "N"
+                a["dirTag"] = ""
+                a["direction"] = ""
+                a["route"] = vehicle["@routeTag"]
 
-        else:
-            a["dirTag"] = ""
-            a["direction"] = ""
-            a["route"] = vehicle["@routeTag"]
-
-        final.append(a)
+            final.append(a)
 
     return final
+
+
