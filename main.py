@@ -51,6 +51,9 @@ def get_data(timeobject, route):
         for vehicle in d:
 
             if isinstance(vehicle, dict):
+                print("============== ", r)
+                print(vehicle)
+
                 a = {
                     "heading": vehicle["@heading"],
                     "id": vehicle["@id"],
