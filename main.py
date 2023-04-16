@@ -46,33 +46,37 @@ def get_data(timeobject, route):
 
         d = data["body"]["vehicle"]
 
+
+
         for vehicle in d:
-            a = {
-                "heading": vehicle["@heading"],
-                "id": vehicle["@id"],
-                "lat": vehicle["@lat"],
-                "lon": vehicle["@lon"],
-                "predictable": vehicle["@predictable"],
-                "routeTag": vehicle["@routeTag"],
-                "secsSinceReport": vehicle["@secsSinceReport"],
-                "speed": vehicle["@speedKmHr"]
-            }
 
-            if "@dirTag" in vehicle:
-                a["dirTag"] = vehicle["@dirTag"]
-                x = vehicle["@dirTag"].split("_")
-                a["route"] = x[2]
-                if x[1] == "0":
-                    a["direction"] = "S"
+            if isinstance(vehicle, dict):
+                a = {
+                    "heading": vehicle["@heading"],
+                    "id": vehicle["@id"],
+                    "lat": vehicle["@lat"],
+                    "lon": vehicle["@lon"],
+                    "predictable": vehicle["@predictable"],
+                    "routeTag": vehicle["@routeTag"],
+                    "secsSinceReport": vehicle["@secsSinceReport"],
+                    "speed": vehicle["@speedKmHr"]
+                }
+
+                if "@dirTag" in vehicle:
+                    a["dirTag"] = vehicle["@dirTag"]
+                    x = vehicle["@dirTag"].split("_")
+                    a["route"] = x[2]
+                    if x[1] == "0":
+                        a["direction"] = "S"
+                    else:
+                        a["direction"] = "N"
+
                 else:
-                    a["direction"] = "N"
+                    a["dirTag"] = ""
+                    a["direction"] = ""
+                    a["route"] = vehicle["@routeTag"]
 
-            else:
-                a["dirTag"] = ""
-                a["direction"] = ""
-                a["route"] = vehicle["@routeTag"]
-
-            final.append(a)
+                final.append(a)
 
     return final
 
