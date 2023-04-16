@@ -44,42 +44,44 @@ def get_data(timeobject, route):
         response = requests.get(url)
         data = xmltodict.parse(response.content)
 
-        d = data["body"]["vehicle"]
+        if "vehicle" in data["body"]:
+
+            d = data["body"]["vehicle"]
 
 
 
-        for vehicle in d:
+            for vehicle in d:
 
-            if isinstance(vehicle, dict):
-                print("============== ", r)
-                print(vehicle)
+                if isinstance(vehicle, dict):
+                    print("============== ", r)
+                    print(vehicle)
 
-                a = {
-                    "heading": vehicle["@heading"],
-                    "id": vehicle["@id"],
-                    "lat": vehicle["@lat"],
-                    "lon": vehicle["@lon"],
-                    "predictable": vehicle["@predictable"],
-                    "routeTag": vehicle["@routeTag"],
-                    "secsSinceReport": vehicle["@secsSinceReport"],
-                    "speed": vehicle["@speedKmHr"]
-                }
+                    a = {
+                        "heading": vehicle["@heading"],
+                        "id": vehicle["@id"],
+                        "lat": vehicle["@lat"],
+                        "lon": vehicle["@lon"],
+                        "predictable": vehicle["@predictable"],
+                        "routeTag": vehicle["@routeTag"],
+                        "secsSinceReport": vehicle["@secsSinceReport"],
+                        "speed": vehicle["@speedKmHr"]
+                    }
 
-                if "@dirTag" in vehicle:
-                    a["dirTag"] = vehicle["@dirTag"]
-                    x = vehicle["@dirTag"].split("_")
-                    a["route"] = x[2]
-                    if x[1] == "0":
-                        a["direction"] = "S"
+                    if "@dirTag" in vehicle:
+                        a["dirTag"] = vehicle["@dirTag"]
+                        x = vehicle["@dirTag"].split("_")
+                        a["route"] = x[2]
+                        if x[1] == "0":
+                            a["direction"] = "S"
+                        else:
+                            a["direction"] = "N"
+
                     else:
-                        a["direction"] = "N"
+                        a["dirTag"] = ""
+                        a["direction"] = ""
+                        a["route"] = vehicle["@routeTag"]
 
-                else:
-                    a["dirTag"] = ""
-                    a["direction"] = ""
-                    a["route"] = vehicle["@routeTag"]
-
-                final.append(a)
+                    final.append(a)
 
     return final
 
