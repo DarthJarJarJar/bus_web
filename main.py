@@ -33,10 +33,7 @@ def get_data(timeobject, route):
     t = int(timeobject.time())
     final = []
 
-
-    try:
-
-
+    if route != "":
 
         if route[-1] == ',':
             route = route[0:len(route)-1]
@@ -45,55 +42,57 @@ def get_data(timeobject, route):
 
         routeList = route.split(",")
 
-        print(routeList)
-        for r in routeList:
+    else:
+        routeList = []
+
+    print(routeList)
+    for r in routeList:
 
 
-            url = fr"https://retro.umoiq.com/service/publicXMLFeed?command=vehicleLocations&a=ttc&r={r}&t={t}"
+        url = fr"https://retro.umoiq.com/service/publicXMLFeed?command=vehicleLocations&a=ttc&r={r}&t={t}"
 
-            response = requests.get(url)
-            data = xmltodict.parse(response.content)
+        response = requests.get(url)
+        data = xmltodict.parse(response.content)
 
-            if "vehicle" in data["body"]:
+        if "vehicle" in data["body"]:
 
-                d = data["body"]["vehicle"]
+            d = data["body"]["vehicle"]
 
 
 
-                for vehicle in d:
+            for vehicle in d:
 
-                    if isinstance(vehicle, dict):
-                        print("============== ", r)
-                        print(vehicle)
+                if isinstance(vehicle, dict):
+                    print("============== ", r)
+                    print(vehicle)
 
-                        a = {
-                            "heading": vehicle["@heading"],
-                            "id": vehicle["@id"],
-                            "lat": vehicle["@lat"],
-                            "lon": vehicle["@lon"],
-                            "predictable": vehicle["@predictable"],
-                            "routeTag": vehicle["@routeTag"],
-                            "secsSinceReport": vehicle["@secsSinceReport"],
-                            "speed": vehicle["@speedKmHr"]
-                        }
+                    a = {
+                        "heading": vehicle["@heading"],
+                        "id": vehicle["@id"],
+                        "lat": vehicle["@lat"],
+                        "lon": vehicle["@lon"],
+                        "predictable": vehicle["@predictable"],
+                        "routeTag": vehicle["@routeTag"],
+                        "secsSinceReport": vehicle["@secsSinceReport"],
+                        "speed": vehicle["@speedKmHr"]
+                    }
 
-                        if "@dirTag" in vehicle:
-                            a["dirTag"] = vehicle["@dirTag"]
-                            x = vehicle["@dirTag"].split("_")
-                            a["route"] = x[2]
-                            if x[1] == "0":
-                                a["direction"] = "S"
-                            else:
-                                a["direction"] = "N"
-
+                    if "@dirTag" in vehicle:
+                        a["dirTag"] = vehicle["@dirTag"]
+                        x = vehicle["@dirTag"].split("_")
+                        a["route"] = x[2]
+                        if x[1] == "0":
+                            a["direction"] = "S"
                         else:
-                            a["dirTag"] = ""
-                            a["direction"] = ""
-                            a["route"] = vehicle["@routeTag"]
+                            a["direction"] = "N"
 
-                        final.append(a)
-    except:
-        print("error")
+                    else:
+                        a["dirTag"] = ""
+                        a["direction"] = ""
+                        a["route"] = vehicle["@routeTag"]
+
+                    final.append(a)
+
 
     return final
 
